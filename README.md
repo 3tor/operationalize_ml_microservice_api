@@ -18,8 +18,6 @@ Your project goal is to operationalize this working, machine learning microservi
 - Deploy a container using Kubernetes and make a prediction
 - Upload a complete Github repo with CircleCI to indicate that your code has been tested
 
-You can find a detailed [project rubric, here](https://review.udacity.com/#!/rubrics/2576/view).
-
 **The final implementation of the project will showcase your abilities to operationalize production microservices.**
 
 ---
@@ -48,6 +46,66 @@ source .devops/bin/activate
 ### Kubernetes Steps
 
 - Setup and Configure Docker locally
+
+  ```bash
+  - To install Docker on your machine, go to [Docker ](https://docs.docker.com/engine/install/ "docker")
+  ```
+
 - Setup and Configure Kubernetes locally
+
+  ```bash
+  - To install Kubernetes on linux:
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+  ```
+
+  or go [here](https://kubernetes.io/docs/tasks/tools/) for other OS
+
+  ```bash
+    #Verify the installation with:`
+    kubectl version --client
+  ```
+
 - Create Flask app in Container
+
+  ```bash
+      docker build --tag=yourdockerhubusername/imagename:tag`
+      docker run -p 8000:80 imagename
+  ```
+
 - Run via kubectl
+
+  ```bash
+      #To execute via Kubectl
+      kubectl run preferredname --image=yourdockerhubusername/imagename:tag --port=80
+      #Verify kubernetes pods started
+      kubectl get pods
+      #Forward the container port to a host
+      kubectl port-forward pods/preferedname --address 0.0.0.0 8000:80
+      #Verify port is forwarded by opening another terminal and execute
+      curl localhost:8000
+      #or
+      run "make_prediction.sh"
+  ```
+
+### Files In the Project
+
+`.circleci/config.yml`: Has the circleci workflow configurations for testing and building our code.
+
+`output_txt_files`: Files containing outputs from the predictor. Docker_out.txt contains docker run outputs and kubernetes_out.txt contains output from kubernetes
+
+`app.py`: Main flask entry app that accepts input requests and makes predictions based on input.
+
+`Dockerfile`: Our docker image setup file
+
+`make_prediction.sh`: This file when executed makes an http request to the /predict route and the prediction response is outputted.
+
+`Makefile`: The Makefile includes instructions on environment setup and lint tests. It also creates and activates a virtual environment and installs dependencies in requirements.txt
+
+`requirements.txt`: List of libraries needed for our app to run
+
+`run_docker.sh`: Build image with a descriptive tag to run the flask app
+
+`run_kubernetes.sh`: Run the Docker Hub container with kubernetes and forward the container port to a host
+
+`upload_docker.sh`: The file tags and uploads an image to Docker Hub
